@@ -50,7 +50,12 @@ dc.stackMixin = function (_chart) {
         }
         return function (p) {
             //return true;
-            return p.x >= xDomain[0] && p.x <= xDomain[xDomain.length - 1];
+            // TSHED-929 fix for reversing the x-axis
+            if (xDomain[0] < xDomain[xDomain.length - 1]){
+                return p.x >= xDomain[0] && p.x <= xDomain[xDomain.length - 1];
+            } else {
+                return p.x >= xDomain[xDomain.length - 1] && p.x <= xDomain[0];
+            }
         };
     }
 
