@@ -994,7 +994,7 @@ dc.coordinateGridMixin = function (_chart) {
     _chart.setBrushY = function (gBrush) {
         gBrush.selectAll('rect')
             .attr('height', brushHeight());
-        gBrush.selectAll('.resize path')
+        gBrush.selectAll('.resize>path')
             .attr('d', _chart.resizeHandlePath);
     };
 
