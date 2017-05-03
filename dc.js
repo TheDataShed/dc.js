@@ -8532,6 +8532,8 @@ dc.rowChart = function (parent, chartGroup) {
 
     var _rowData;
 
+    var _wrapLabelWidth = null;
+
     _chart.rowsCap = _chart.cap;
 
     function calculateAxisScale () {
@@ -8720,6 +8722,10 @@ dc.rowChart = function (parent, chartGroup) {
                 .text(function (d) {
                     return _chart.label()(d);
                 });
+
+            if (_chart.wrapLabelWidth()) {
+                lab.call(wrapLabel, _chart.wrapLabelWidth());
+            }
             dc.transition(lab, _chart.transitionDuration(), _chart.transitionDelay())
                 .attr('transform', translateX);
         }
@@ -8739,6 +8745,31 @@ dc.rowChart = function (parent, chartGroup) {
             dc.transition(titlelab, _chart.transitionDuration(), _chart.transitionDelay())
                 .attr('transform', translateX);
         }
+    }
+
+    // courtesy https://bl.ocks.org/mbostock/7555321
+    function wrapLabel(text, width) {
+        text.each(function() {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
     }
 
     /**
@@ -8898,6 +8929,14 @@ dc.rowChart = function (parent, chartGroup) {
     function isSelectedRow (d) {
         return _chart.hasFilter(_chart.cappedKeyAccessor(d));
     }
+
+    _chart.wrapLabelWidth = function (wrapLabelWidth) {
+         if (!arguments.length) {
+            return _wrapLabelWidth;
+        }
+        _wrapLabelWidth = wrapLabelWidth;
+        return _chart;
+    };
 
     return _chart.anchor(parent, chartGroup);
 };
